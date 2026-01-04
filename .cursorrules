@@ -1,0 +1,59 @@
+# Cursor Rules for faiss-go-bindings
+
+## Project Context
+
+This is a **bindings-only** Go module providing pre-built FAISS static libraries. It contains:
+- CGO configuration files for each platform
+- Pre-built static libraries in `lib/`
+- C header files in `include/`
+- Build scripts for regenerating libraries
+
+This is NOT a wrapper library - no Go API code should be added here.
+
+## Supported Platforms
+
+- linux/amd64, linux/arm64
+- darwin/amd64, darwin/arm64
+
+## File Patterns
+
+- `cgo_*.go` - Platform-specific CGO flags (CFLAGS, LDFLAGS)
+- `bindings.go` - C API type declarations and test helpers
+- `lib/<platform>/` - Static libraries (.a files)
+- `scripts/` - Shell scripts for building static libraries
+
+## Key Commands
+
+```bash
+go build -v ./...          # Build
+go test -v ./...           # Run smoke tests
+```
+
+## CGO Guidelines
+
+When modifying CGO files:
+1. Keep LDFLAGS platform-specific (different linkers, different flags)
+2. Linux uses `-Wl,--whole-archive` for static linking
+3. macOS uses `-Wl,-framework,Accelerate` for BLAS
+4. All platforms need `-lfaiss_c -lfaiss -lfaiss_go_ext`
+
+## Static Library Requirements
+
+Each platform directory must contain:
+- `libfaiss.a` - Core FAISS library
+- `libfaiss_c.a` - C API wrapper
+- `libfaiss_go_ext.a` - Custom Go extensions
+
+## Don't Do
+
+- Don't add Go wrapper code (belongs in faiss-go, not here)
+- Don't add complex tests (this is just for linking verification)
+- Don't modify static libraries directly (use build scripts)
+- Don't add Windows support (intentionally excluded)
+
+## Workflow Files
+
+Located in `.github/workflows/`:
+- `build-static-libs.yml` - Rebuild libraries for all platforms
+- `release.yml` - Create releases matching FAISS version
+- `check-faiss-releases.yml` - Monitor upstream FAISS releases
