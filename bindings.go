@@ -153,6 +153,8 @@ import "C"
 import "unsafe"
 
 // CreateTestIndex creates a simple FlatL2 index for testing.
+// Note: FAISS IndexFlatL2 creation never fails for any dimension value,
+// so no error handling is needed here.
 func CreateTestIndex(dim int) uintptr {
 	var idx C.FaissIndex
 	C.faiss_IndexFlatL2_new_with(&idx, C.int64_t(dim))
