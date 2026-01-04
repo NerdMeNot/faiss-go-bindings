@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       faiss_version:
-        description: 'FAISS version tag (e.g., v1.8.0)'
+        description: 'FAISS version tag (e.g., v1.13.2) - should match VERSION file'
         required: true
-        default: 'v1.8.0'
+        default: 'v1.13.2'
       build_fully_static:
         description: 'Build fully static libs (bundle OpenBLAS)'
         required: true
@@ -106,7 +106,7 @@ jobs:
             arm64v8/ubuntu:24.04 \
             bash -c "
               apt-get update && \
-              apt-get install -y build-essential cmake git gfortran libgomp1 curl && \
+              apt-get install -y build-essential cmake git gfortran libgomp1 libgomp-dev curl && \
               chmod +x scripts/build-static-libs.sh && \
               if [ '${{ github.event.inputs.build_fully_static }}' = 'true' ]; then
                 ./scripts/build-static-libs.sh

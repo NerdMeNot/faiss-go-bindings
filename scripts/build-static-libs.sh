@@ -15,7 +15,12 @@ PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 BUILD_DIR="$PROJECT_ROOT/build-static"
 OUTPUT_DIR="$PROJECT_ROOT/lib"
 
-FAISS_VERSION="v1.8.0"  # Adjust as needed
+# Read FAISS version from central VERSION file
+if [ ! -f "$PROJECT_ROOT/VERSION" ]; then
+    echo "ERROR: VERSION file not found at $PROJECT_ROOT/VERSION"
+    exit 1
+fi
+FAISS_VERSION="v$(cat "$PROJECT_ROOT/VERSION" | tr -d '[:space:]')"
 OPENBLAS_VERSION="v0.3.27"
 
 # Colors for output

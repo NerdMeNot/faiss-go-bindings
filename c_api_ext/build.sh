@@ -31,7 +31,13 @@ esac
 
 PLATFORM="${OS}_${ARCH}"
 LIBS_DIR="$PROJECT_ROOT/lib/$PLATFORM"
-FAISS_VERSION="v1.13.2"
+
+# Read FAISS version from central VERSION file
+if [ ! -f "$PROJECT_ROOT/VERSION" ]; then
+    echo "ERROR: VERSION file not found at $PROJECT_ROOT/VERSION"
+    exit 1
+fi
+FAISS_VERSION="v$(cat "$PROJECT_ROOT/VERSION" | tr -d '[:space:]')"
 
 echo "Building FAISS Go Extensions for $PLATFORM"
 echo "============================================"
