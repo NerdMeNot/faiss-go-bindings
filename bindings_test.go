@@ -9,13 +9,7 @@ import (
 // by creating a simple index and checking its properties.
 func TestBindingsLink(t *testing.T) {
 	// Create a flat L2 index with dimension 64
-	ptr, errCode := CreateTestIndex(64)
-	if errCode != 0 {
-		t.Fatalf("CreateTestIndex failed with code %d", errCode)
-	}
-	if ptr == 0 {
-		t.Fatal("CreateTestIndex returned nil index")
-	}
+	ptr := CreateTestIndex(64)
 	defer FreeIndex(ptr)
 
 	// Verify dimension
@@ -40,13 +34,7 @@ func TestMultipleDimensions(t *testing.T) {
 	for _, dim := range dimensions {
 		dim := dim // capture for closure
 		t.Run(fmt.Sprintf("dim_%d", dim), func(t *testing.T) {
-			ptr, errCode := CreateTestIndex(dim)
-			if errCode != 0 {
-				t.Fatalf("CreateTestIndex(%d) failed with code %d", dim, errCode)
-			}
-			if ptr == 0 {
-				t.Fatalf("CreateTestIndex(%d) returned nil", dim)
-			}
+			ptr := CreateTestIndex(dim)
 			defer FreeIndex(ptr)
 
 			got := GetIndexDimension(ptr)
@@ -60,10 +48,7 @@ func TestMultipleDimensions(t *testing.T) {
 // TestZeroDimension verifies that CreateTestIndex handles edge case dimensions.
 func TestZeroDimension(t *testing.T) {
 	// FAISS accepts dimension 0 (creates an empty index)
-	ptr, errCode := CreateTestIndex(0)
-	if errCode != 0 {
-		t.Fatalf("CreateTestIndex(0) failed with code %d", errCode)
-	}
+	ptr := CreateTestIndex(0)
 	defer FreeIndex(ptr)
 
 	d := GetIndexDimension(ptr)

@@ -153,14 +153,10 @@ import "C"
 import "unsafe"
 
 // CreateTestIndex creates a simple FlatL2 index for testing.
-// Returns the index pointer or an error code.
-func CreateTestIndex(dim int) (uintptr, int) {
+func CreateTestIndex(dim int) uintptr {
 	var idx C.FaissIndex
-	ret := C.faiss_IndexFlatL2_new_with(&idx, C.int64_t(dim))
-	if ret != 0 {
-		return 0, int(ret)
-	}
-	return uintptr(unsafe.Pointer(idx)), 0
+	C.faiss_IndexFlatL2_new_with(&idx, C.int64_t(dim))
+	return uintptr(unsafe.Pointer(idx))
 }
 
 // GetIndexDimension returns the dimension of an index.
