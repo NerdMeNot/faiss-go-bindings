@@ -64,36 +64,35 @@ jobs:
 
         if [ -n "$PATCH" ]; then
           TITLE="Release $TAG (FAISS $FAISS_VERSION, patch $PATCH)"
-          NOTES="Binding patch release for FAISS $FAISS_VERSION.
+          gh release create "$TAG" --title "$TITLE" --notes "$(cat <<EOF
+        Binding patch release for FAISS $FAISS_VERSION.
 
-See [FAISS $FAISS_VERSION release](https://github.com/facebookresearch/faiss/releases/tag/v$FAISS_VERSION) for upstream changes."
+        See [FAISS $FAISS_VERSION release](https://github.com/facebookresearch/faiss/releases/tag/v$FAISS_VERSION) for upstream changes.
+        EOF
+        )"
         else
           TITLE="Release $TAG (FAISS $FAISS_VERSION)"
-          NOTES="Go bindings for FAISS $FAISS_VERSION.
+          gh release create "$TAG" --title "$TITLE" --notes "$(cat <<EOF
+        Go bindings for FAISS $FAISS_VERSION.
 
-## What's Included
+        ## What's Included
 
-- Pre-built static libraries for:
-  - Linux (amd64, arm64)
-  - macOS (amd64, arm64)
-  - Windows (amd64)
+        - Pre-built static libraries for:
+          - Linux (amd64, arm64)
+          - macOS (amd64, arm64)
 
-## Usage
+        ## Usage
 
-\`\`\`go
-import _ \"github.com/NerdMeNot/faiss-go-bindings\"
-\`\`\`
+        import _ "github.com/NerdMeNot/faiss-go-bindings"
 
-See [README](https://github.com/NerdMeNot/faiss-go-bindings#readme) for full documentation.
+        See [README](https://github.com/NerdMeNot/faiss-go-bindings#readme) for full documentation.
 
-## FAISS Release
+        ## FAISS Release
 
-See [FAISS $FAISS_VERSION release](https://github.com/facebookresearch/faiss/releases/tag/v$FAISS_VERSION) for upstream changes."
+        See [FAISS $FAISS_VERSION release](https://github.com/facebookresearch/faiss/releases/tag/v$FAISS_VERSION) for upstream changes.
+        EOF
+        )"
         fi
-
-        gh release create "$TAG" \
-          --title "$TITLE" \
-          --notes "$NOTES"
 
     - name: Summary
       run: |
