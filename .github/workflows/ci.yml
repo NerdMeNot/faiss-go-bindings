@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Verify bindings compile on supported platforms
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+
+    - name: Install runtime dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libopenblas-dev libgomp1 libomp-dev
+
+    - name: Install runtime dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install libomp
+
+    - name: Build bindings
+      env:
+        CGO_LDFLAGS_ALLOW: ".*"
+      run: |
+        go build -v ./...
+
+    - name: Run tests
+      env:
+        CGO_LDFLAGS_ALLOW: ".*"
+      run: |
+        go test -v ./...
+
+  # Verify library structure
+  verify-structure:
+    name: Verify Library Structure
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Verify library files exist
+      run: |
+        echo "Checking library structure..."
+
+        # Check include directory
+        test -f include/faiss_c.h || (echo "Missing include/faiss_c.h" && exit 1)
+        test -f include/Index_c.h || (echo "Missing include/Index_c.h" && exit 1)
+
+        # Check linux_amd64
+        test -f lib/linux_amd64/libfaiss.a || (echo "Missing lib/linux_amd64/libfaiss.a" && exit 1)
+        test -f lib/linux_amd64/libfaiss_c.a || (echo "Missing lib/linux_amd64/libfaiss_c.a" && exit 1)
+
+        # Check linux_arm64
+        test -f lib/linux_arm64/libfaiss.a || (echo "Missing lib/linux_arm64/libfaiss.a" && exit 1)
+        test -f lib/linux_arm64/libfaiss_c.a || (echo "Missing lib/linux_arm64/libfaiss_c.a" && exit 1)
+
+        # Check darwin_amd64
+        test -f lib/darwin_amd64/libfaiss.a || (echo "Missing lib/darwin_amd64/libfaiss.a" && exit 1)
+        test -f lib/darwin_amd64/libfaiss_c.a || (echo "Missing lib/darwin_amd64/libfaiss_c.a" && exit 1)
+
+        # Check darwin_arm64
+        test -f lib/darwin_arm64/libfaiss.a || (echo "Missing lib/darwin_arm64/libfaiss.a" && exit 1)
+        test -f lib/darwin_arm64/libfaiss_c.a || (echo "Missing lib/darwin_arm64/libfaiss_c.a" && exit 1)
+
+        # Check windows_amd64
+        test -f lib/windows_amd64/faiss.lib || (echo "Missing lib/windows_amd64/faiss.lib" && exit 1)
+        test -f lib/windows_amd64/faiss_c.lib || (echo "Missing lib/windows_amd64/faiss_c.lib" && exit 1)
+
+        echo "All required library files present!"
+
+    - name: Show library sizes
+      run: |
+        echo "Library sizes:"
+        du -sh lib/*/
+        echo ""
+        echo "Individual files:"
+        find lib -name "*.a" -o -name "*.lib" | xargs ls -lh
