@@ -26,20 +26,14 @@ The CGO directives in this package configure the linker to use the pre-built FAI
 
 ## Runtime Dependencies
 
-While the FAISS libraries are statically linked, some platforms require runtime dependencies:
+The FAISS core and OpenBLAS are statically linked. Only the OpenMP runtime is required:
 
-### Linux
-```bash
-sudo apt-get install libopenblas-dev libgomp1
-```
+| Platform | Install Command |
+|----------|-----------------|
+| **Linux** | `sudo apt-get install libgomp1` |
+| **macOS** | `brew install libomp` |
 
-### macOS
-```bash
-brew install libomp
-```
-
-### Windows
-Requires OpenBLAS and GFortran runtime libraries.
+See [DEPENDENCIES.md](DEPENDENCIES.md) for detailed information.
 
 ## Building Libraries
 
