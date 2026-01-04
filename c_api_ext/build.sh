@@ -31,7 +31,7 @@ esac
 
 PLATFORM="${OS}_${ARCH}"
 LIBS_DIR="$PROJECT_ROOT/lib/$PLATFORM"
-FAISS_VERSION="v1.8.0"
+FAISS_VERSION="v1.13.2"
 
 echo "Building FAISS Go Extensions for $PLATFORM"
 echo "============================================"
