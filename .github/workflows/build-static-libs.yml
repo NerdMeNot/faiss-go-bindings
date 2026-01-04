@@ -58,7 +58,20 @@ jobs:
         run: |
           ls -lh lib/linux_amd64/
           file lib/linux_amd64/libfaiss.a
-          nm -g lib/linux_amd64/libfaiss.a | grep -i faiss | head -10
+
+          # Check library size (with OpenBLAS should be 40MB+)
+          SIZE=$(stat -c%s lib/linux_amd64/libfaiss.a)
+          echo "Library size: $SIZE bytes"
+
+          # Check if OpenBLAS symbols are defined (T) not undefined (U)
+          echo "Checking for BLAS symbols..."
+          if nm lib/linux_amd64/libfaiss.a 2>/dev/null | grep -q " T .*sgemm"; then
+            echo "✓ OpenBLAS is statically linked (sgemm defined)"
+          elif nm lib/linux_amd64/libfaiss.a 2>/dev/null | grep -q " U .*sgemm"; then
+            echo "⚠ OpenBLAS NOT merged (sgemm undefined)"
+          fi
+
+          nm lib/linux_amd64/libfaiss.a 2>/dev/null | grep -E "gemm" | head -10 || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -86,10 +99,24 @@ jobs:
             arm64v8/ubuntu:24.04 \
             bash -c "
               apt-get update && \
-              apt-get install -y build-essential cmake git libopenblas-dev libomp-dev && \
-              chmod +x scripts/build_static_lib.sh && \
-              ./scripts/build_static_lib.sh linux-arm64 ${{ github.event.inputs.faiss_version }}
+              apt-get install -y build-essential cmake git gfortran libgomp1 && \
+              chmod +x scripts/build-static-libs.sh && \
+              if [ '${{ github.event.inputs.build_fully_static }}' = 'true' ]; then
+                ./scripts/build-static-libs.sh
+              else
+                apt-get install -y libopenblas-dev libomp-dev && \
+                chmod +x scripts/build_static_lib.sh && \
+                ./scripts/build_static_lib.sh linux-arm64 ${{ github.event.inputs.faiss_version }}
+              fi
             "
+
+      - name: Verify library
+        run: |
+          ls -lh lib/linux_arm64/
+          file lib/linux_arm64/libfaiss.a || true
+          # Check if OpenBLAS symbols are defined (not undefined)
+          echo "Checking for BLAS symbols..."
+          nm lib/linux_arm64/libfaiss.a 2>/dev/null | grep -E "sgemm_|dgemm_" | head -5 || true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
