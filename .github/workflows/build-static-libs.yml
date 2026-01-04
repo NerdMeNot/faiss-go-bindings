@@ -106,7 +106,7 @@ jobs:
             arm64v8/ubuntu:24.04 \
             bash -c "
               apt-get update && \
-              apt-get install -y build-essential cmake git gfortran libgomp1 libgomp-dev curl && \
+              apt-get install -y build-essential cmake git gfortran libgomp1 curl && \
               chmod +x scripts/build-static-libs.sh && \
               if [ '${{ github.event.inputs.build_fully_static }}' = 'true' ]; then
                 ./scripts/build-static-libs.sh
