@@ -30,7 +30,7 @@ case "$ARCH" in
 esac
 
 PLATFORM="${OS}_${ARCH}"
-LIBS_DIR="$PROJECT_ROOT/libs/$PLATFORM"
+LIBS_DIR="$PROJECT_ROOT/lib/$PLATFORM"
 FAISS_VERSION="v1.8.0"
 
 echo "Building FAISS Go Extensions for $PLATFORM"

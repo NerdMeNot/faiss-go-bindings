@@ -54,6 +54,13 @@ jobs:
             ./scripts/build_static_lib.sh linux-amd64 ${{ github.event.inputs.faiss_version }}
           fi
 
+      - name: Build FAISS Go extensions
+        run: |
+          cd c_api_ext
+          chmod +x build.sh
+          ./build.sh
+          cp libfaiss_go_ext.a ../lib/linux_amd64/
+
       - name: Verify library
         run: |
           ls -lh lib/linux_amd64/
@@ -99,7 +106,7 @@ jobs:
             arm64v8/ubuntu:24.04 \
             bash -c "
               apt-get update && \
-              apt-get install -y build-essential cmake git gfortran libgomp1 && \
+              apt-get install -y build-essential cmake git gfortran libgomp1 curl && \
               chmod +x scripts/build-static-libs.sh && \
               if [ '${{ github.event.inputs.build_fully_static }}' = 'true' ]; then
                 ./scripts/build-static-libs.sh
@@ -107,7 +114,11 @@ jobs:
                 apt-get install -y libopenblas-dev libomp-dev && \
                 chmod +x scripts/build_static_lib.sh && \
                 ./scripts/build_static_lib.sh linux-arm64 ${{ github.event.inputs.faiss_version }}
-              fi
+              fi && \
+              cd c_api_ext && \
+              chmod +x build.sh && \
+              ./build.sh && \
+              cp libfaiss_go_ext.a ../lib/linux_arm64/
             "
 
       - name: Verify library
@@ -142,6 +153,13 @@ jobs:
           chmod +x scripts/build_static_lib.sh
           ./scripts/build_static_lib.sh darwin-amd64 ${{ github.event.inputs.faiss_version }}
 
+      - name: Build FAISS Go extensions
+        run: |
+          cd c_api_ext
+          chmod +x build.sh
+          ./build.sh
+          cp libfaiss_go_ext.a ../lib/darwin_amd64/
+
       - name: Verify library
         run: |
           ls -lh lib/darwin_amd64/
@@ -171,6 +189,13 @@ jobs:
           chmod +x scripts/build_static_lib.sh
           ./scripts/build_static_lib.sh darwin-arm64 ${{ github.event.inputs.faiss_version }}
 
+      - name: Build FAISS Go extensions
+        run: |
+          cd c_api_ext
+          chmod +x build.sh
+          ./build.sh
+          cp libfaiss_go_ext.a ../lib/darwin_arm64/
+
       - name: Verify library
         run: |
           ls -lh lib/darwin_arm64/
@@ -196,7 +221,7 @@ jobs:
 
       - name: Install vcpkg dependencies
         run: |
-          vcpkg install openblas:x64-windows lapack:x64-windows
+          vcpkg install openblas:x64-windows-static lapack:x64-windows-static
           vcpkg integrate install
 
       - name: Build FAISS static library
@@ -204,6 +229,25 @@ jobs:
         run: |
           chmod +x scripts/build_static_lib.sh
           ./scripts/build_static_lib.sh windows-amd64 ${{ github.event.inputs.faiss_version }}
+
+      - name: Bundle OpenBLAS
+        shell: bash
+        run: |
+          # Copy OpenBLAS static library from vcpkg
+          VCPKG_ROOT="${VCPKG_INSTALLATION_ROOT:-C:/vcpkg}"
+          if [ -f "$VCPKG_ROOT/installed/x64-windows-static/lib/openblas.lib" ]; then
+            cp "$VCPKG_ROOT/installed/x64-windows-static/lib/openblas.lib" lib/windows_amd64/
+            echo "Bundled openblas.lib"
+          else
+            echo "Warning: openblas.lib not found"
+            find "$VCPKG_ROOT/installed" -name "*.lib" | head -20
+          fi
+
+      - name: Verify library
+        shell: bash
+        run: |
+          ls -lh lib/windows_amd64/
+          echo "Windows build complete (experimental)"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
