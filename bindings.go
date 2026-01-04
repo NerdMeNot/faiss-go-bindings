@@ -158,7 +158,7 @@ import "unsafe"
 func CreateTestIndex(dim int) (uintptr, int) {
 	var idx C.FaissIndex
 	ret := C.faiss_IndexFlatL2_new_with(&idx, C.int64_t(dim))
-	if ret != 0 || idx == nil {
+	if ret != 0 {
 		return 0, int(ret)
 	}
 	return uintptr(unsafe.Pointer(idx)), 0

@@ -56,3 +56,18 @@ func TestMultipleDimensions(t *testing.T) {
 		})
 	}
 }
+
+// TestZeroDimension verifies that CreateTestIndex handles edge case dimensions.
+func TestZeroDimension(t *testing.T) {
+	// FAISS accepts dimension 0 (creates an empty index)
+	ptr, errCode := CreateTestIndex(0)
+	if errCode != 0 {
+		t.Fatalf("CreateTestIndex(0) failed with code %d", errCode)
+	}
+	defer FreeIndex(ptr)
+
+	d := GetIndexDimension(ptr)
+	if d != 0 {
+		t.Errorf("expected dimension 0, got %d", d)
+	}
+}
