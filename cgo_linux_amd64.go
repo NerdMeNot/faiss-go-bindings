@@ -12,7 +12,7 @@ package bindings
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/include
-#cgo LDFLAGS: -L${SRCDIR}/lib/linux_amd64 -Wl,--whole-archive -lfaiss_c -lfaiss_go_ext -Wl,--no-whole-archive -lfaiss
+#cgo LDFLAGS: -L${SRCDIR}/lib/linux_amd64 -lfaiss_c -lfaiss_go_ext -lfaiss
 #cgo LDFLAGS: -lstdc++ -lm -lpthread -ldl
 #cgo LDFLAGS: -lgomp -lgfortran
 */

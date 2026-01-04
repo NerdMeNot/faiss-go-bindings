@@ -24,13 +24,13 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.21'
+        go-version: '1.23'
 
     - name: Install runtime dependencies (Ubuntu)
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y libopenblas-dev libgomp1 libomp-dev
+        sudo apt-get install -y libgomp1
 
     - name: Install runtime dependencies (macOS)
       if: runner.os == 'macOS'
@@ -38,16 +38,10 @@ jobs:
         brew install libomp
 
     - name: Build bindings
-      env:
-        CGO_LDFLAGS_ALLOW: ".*"
-      run: |
-        go build -v ./...
+      run: go build -v ./...
 
     - name: Run tests
-      env:
-        CGO_LDFLAGS_ALLOW: ".*"
-      run: |
-        go test -v ./...
+      run: go test -v ./...
 
   # Verify library structure
   verify-structure:
@@ -82,10 +76,6 @@ jobs:
         test -f lib/darwin_arm64/libfaiss.a || (echo "Missing lib/darwin_arm64/libfaiss.a" && exit 1)
         test -f lib/darwin_arm64/libfaiss_c.a || (echo "Missing lib/darwin_arm64/libfaiss_c.a" && exit 1)
 
-        # Check windows_amd64
-        test -f lib/windows_amd64/faiss.lib || (echo "Missing lib/windows_amd64/faiss.lib" && exit 1)
-        test -f lib/windows_amd64/faiss_c.lib || (echo "Missing lib/windows_amd64/faiss_c.lib" && exit 1)
-
         echo "All required library files present!"
 
     - name: Show library sizes
@@ -94,4 +84,4 @@ jobs:
         du -sh lib/*/
         echo ""
         echo "Individual files:"
-        find lib -name "*.a" -o -name "*.lib" | xargs ls -lh
+        find lib -name "*.a" | xargs ls -lh
