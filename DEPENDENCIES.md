@@ -9,7 +9,6 @@ This document explains the runtime dependencies required for faiss-go-bindings.
 | **Linux AMD64/ARM64** | `libgomp1` (OpenMP runtime) |
 | **macOS Intel** | `libomp` from Homebrew |
 | **macOS Apple Silicon** | `libomp` from Homebrew |
-| **Windows AMD64** | OpenBLAS DLLs (bundled) |
 
 ## Why Runtime Dependencies?
 
@@ -45,9 +44,6 @@ sudo dnf install libgomp
 ```bash
 brew install libomp
 ```
-
-### Windows
-OpenBLAS DLLs are typically bundled or available via vcpkg.
 
 ## Verification
 

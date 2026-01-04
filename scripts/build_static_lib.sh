@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build FAISS static library for a specific platform
 # Usage: ./build_static_lib.sh <platform> [faiss_version]
-#   platform: linux-amd64, linux-arm64, darwin-amd64, darwin-arm64, windows-amd64
+#   platform: linux-amd64, linux-arm64, darwin-amd64, darwin-arm64
 #   faiss_version: FAISS git tag (default: v1.8.0)
 
 set -euo pipefail
@@ -11,7 +11,7 @@ FAISS_VERSION="${2:-v1.13.2}"
 
 if [ -z "$PLATFORM" ]; then
     echo "Usage: $0 <platform> [faiss_version]"
-    echo "Platforms: linux-amd64, linux-arm64, darwin-amd64, darwin-arm64, windows-amd64"
+    echo "Platforms: linux-amd64, linux-arm64, darwin-amd64, darwin-arm64"
     exit 1
 fi
 
@@ -49,9 +49,6 @@ case "$PLATFORM" in
     darwin-arm64)
         CMAKE_SYSTEM_PROCESSOR="arm64"
         CMAKE_OSX_ARCHITECTURES="arm64"
-        ;;
-    windows-amd64)
-        CMAKE_SYSTEM_PROCESSOR="AMD64"
         ;;
     *)
         echo -e "${RED}Unknown platform: $PLATFORM${NC}"
@@ -123,15 +120,6 @@ if [[ "$PLATFORM" == darwin-* ]]; then
     fi
 fi
 
-# Windows vcpkg toolchain
-if [[ "$PLATFORM" == windows-* ]]; then
-    # Check for vcpkg toolchain file
-    VCPKG_ROOT="${VCPKG_INSTALLATION_ROOT:-C:/vcpkg}"
-    if [ -f "$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" ]; then
-        CMAKE_FLAGS+=(-DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake")
-    fi
-fi
-
 # Build
 cmake .. "${CMAKE_FLAGS[@]}" || {
     echo -e "${RED}CMake configuration failed${NC}"
@@ -153,12 +141,7 @@ else
     JOBS=$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)
 fi
 
-if [[ "$PLATFORM" == windows-* ]]; then
-    # Windows requires --config for multi-config generators
-    cmake --build . --config Release -j${JOBS}
-else
-    cmake --build . -j${JOBS}
-fi
+cmake --build . -j${JOBS}
 echo -e "${GREEN}✓ Built FAISS${NC}"
 
 # Create output directory
@@ -167,7 +150,6 @@ mkdir -p "$OUTPUT_DIR"
 # Copy static libraries
 echo "Copying static libraries..."
 if [ -f "faiss/libfaiss.a" ]; then
-    # Unix-like systems (Linux, macOS)
     cp "faiss/libfaiss.a" "$OUTPUT_DIR/"
     echo -e "${GREEN}✓ Copied libfaiss.a${NC}"
 
@@ -176,20 +158,10 @@ if [ -f "faiss/libfaiss.a" ]; then
         cp "c_api/libfaiss_c.a" "$OUTPUT_DIR/"
         echo -e "${GREEN}✓ Copied libfaiss_c.a${NC}"
     fi
-elif [ -f "faiss/Release/faiss.lib" ]; then
-    # Windows Release build
-    cp "faiss/Release/faiss.lib" "$OUTPUT_DIR/"
-    echo -e "${GREEN}✓ Copied faiss.lib${NC}"
-
-    # Copy C API library if it exists
-    if [ -f "c_api/Release/faiss_c.lib" ]; then
-        cp "c_api/Release/faiss_c.lib" "$OUTPUT_DIR/"
-        echo -e "${GREEN}✓ Copied faiss_c.lib${NC}"
-    fi
 else
     echo -e "${RED}Failed to find built library${NC}"
     echo "Searching for libraries..."
-    find . -name "libfaiss.a" -o -name "faiss.lib" -o -name "libfaiss_c.a" -o -name "faiss_c.lib"
+    find . -name "libfaiss.a" -o -name "libfaiss_c.a"
     exit 1
 fi
 

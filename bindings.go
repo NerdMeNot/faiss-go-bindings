@@ -10,7 +10,6 @@
 // Supported platforms:
 //   - linux/amd64, linux/arm64
 //   - darwin/amd64, darwin/arm64
-//   - windows/amd64
 //
 // For other platforms, build faiss-go with -tags=faiss_use_system
 // to link against a system-installed FAISS.
