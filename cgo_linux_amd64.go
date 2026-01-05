@@ -13,7 +13,6 @@ package bindings
 /*
 #cgo CFLAGS: -I${SRCDIR}/include
 #cgo LDFLAGS: -L${SRCDIR}/lib/linux_amd64 -lfaiss_c -lfaiss_go_ext -lfaiss
-#cgo LDFLAGS: -lstdc++ -lm -lpthread -ldl
-#cgo LDFLAGS: -lgomp -lgfortran
+#cgo LDFLAGS: -lstdc++ -lm -lpthread -ldl -lgomp -lgfortran
 */
 import "C"

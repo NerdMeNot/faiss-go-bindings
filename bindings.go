@@ -16,7 +16,8 @@
 package bindings
 
 /*
-#cgo LDFLAGS: -lstdc++ -lm
+// Note: LDFLAGS are in platform-specific cgo_*.go files
+// They must come AFTER FAISS libraries for correct static linking order
 
 #include <stdlib.h>
 #include <stdint.h>
